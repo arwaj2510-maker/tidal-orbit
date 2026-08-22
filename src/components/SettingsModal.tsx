@@ -84,7 +84,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               type="text"
               required
               value={formData.passcode}
-              // onChange={(e) => setFormData({ ...formData, passcode: e.target.value })}
+              onChange={(e) => setFormData({ ...formData, passcode: e.target.value })}
               className="w-full p-3 rounded-xl bg-slate-900/80 border border-rose-300/30 text-rose-100 font-mono text-sm outline-none focus:border-rose-400"
             />
           </div>
