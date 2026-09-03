@@ -14,10 +14,10 @@ import { Footer } from './components/Footer';
 import { BirthdaySettings } from './types';
 
 const DEFAULT_SETTINGS: BirthdaySettings = {
-  recipientName: 'Sophia',
+  recipientName: 'Jagriti',
   nickname: 'Princess',
-  passcode: '1204',
-  birthDate: '2026-12-04',
+  passcode: '121222',
+  birthDate: '2026-12-12',
   secretMessage: 'Happy Birthday to the most breathtakingly wonderful person in the world! You light up my universe every single day. Wishing you a year full of dreams coming true, endless giggles, and magic!',
   isUnlocked: false,
 };

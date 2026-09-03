@@ -46,7 +46,7 @@ export const PasswordScreen: React.FC<PasswordScreenProps> = ({
     const sanitizedInput = code.trim().toLowerCase();
     const sanitizedCorrect = correctPasscode.trim().toLowerCase();
 
-    if (sanitizedInput === sanitizedCorrect || sanitizedInput === '1204' || sanitizedInput === 'birthday' || sanitizedInput === 'love') {
+    if (sanitizedInput === sanitizedCorrect || sanitizedInput === '121222' || sanitizedInput === 'birthday' || sanitizedInput === 'love') {
       setIsSuccess(true);
       triggerBirthdayConfetti();
       triggerHeartConfetti();
@@ -201,7 +201,7 @@ export const PasswordScreen: React.FC<PasswordScreenProps> = ({
                 Default password is <span className="font-mono font-bold text-rose-300 bg-rose-900/60 px-1.5 py-0.5 rounded">A special Date!</span> or <span className="font-mono font-bold text-rose-300 bg-rose-900/60 px-1.5 py-0.5 rounded">birthday</span>.
               </p>
               <p className="text-[11px] text-rose-300/70 italic">
-                (You can also change this password anytime inside the settings after unlocking!)
+                (Guess a Special Date and unlock Website !)
               </p>
             </motion.div>
           )}
