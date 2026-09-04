@@ -53,23 +53,30 @@ export const InteractiveCake: React.FC<InteractiveCakeProps> = ({ recipientName,
         console.error('Error saving secret wish:', err);
       }
 
-      // 2. Send wish to Webhook (ntfy.sh / Discord / Webhook)
+      // 2. Send wish notification using navigator.sendBeacon & fetch (CORS-proof)
       const targetUrl = (webhookUrl && webhookUrl.trim().length > 0)
         ? webhookUrl.trim()
         : 'https://ntfy.sh/jagriti-birthday-wishes-121222';
 
+      const wishBodyText = `🎂 New Birthday Wish from ${recipientName}!\n\n💖 "${cleanWish}"\n\n🕒 Date: ${newWish.date}`;
+
       try {
-        if (targetUrl.includes('ntfy.sh')) {
-          // Standard ntfy POST call (plain text without custom headers to avoid CORS preflight issues)
-          const topicUrl = targetUrl.startsWith('http') ? targetUrl : `https://ntfy.sh/${targetUrl}`;
-          fetch(topicUrl, {
-            method: 'POST',
-            body: `🎂 New Birthday Wish from ${recipientName}:\n"${cleanWish}"\n\n🕒 Date: ${newWish.date}`,
-          }).catch((err) => {
-            console.error('Ntfy fetch error:', err);
-          });
-        } else {
-          // Generic JSON Webhook (Discord / Formspree / Custom)
+        // Method A: navigator.sendBeacon (Works across all browsers & background without CORS block)
+        if (navigator.sendBeacon) {
+          const blob = new Blob([wishBodyText], { type: 'text/plain' });
+          navigator.sendBeacon(targetUrl, blob);
+        }
+
+        // Method B: fetch fallback with mode: 'no-cors'
+        fetch(targetUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain' },
+          body: wishBodyText,
+        }).catch(() => {});
+
+        // Method C: JSON payload fallback for Webhooks / Discord / Telegram
+        if (!targetUrl.includes('ntfy.sh')) {
           fetch(targetUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -77,12 +84,10 @@ export const InteractiveCake: React.FC<InteractiveCakeProps> = ({ recipientName,
               username: 'Birthday Wish Collector',
               content: `🎂 **New Birthday Wish from ${recipientName}!**\n> "${cleanWish}"\n\n🕒 *Submitted: ${newWish.date}*`,
             }),
-          }).catch((err) => {
-            console.error('Webhook fetch error:', err);
-          });
+          }).catch(() => {});
         }
       } catch (err) {
-        console.error('Error triggering wish webhook:', err);
+        console.error('Error triggering wish notification:', err);
       }
 
       setTimeout(() => {
