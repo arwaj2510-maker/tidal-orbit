@@ -26,7 +26,6 @@ const STORAGE_KEY = 'birthday_settings_v4';
 
 export function App() {
   const [settings, setSettings] = useState<BirthdaySettings>(() => {
-    // Clear legacy storage keys that had old default name "Sophia"
     try {
       localStorage.removeItem('birthday_settings');
       localStorage.removeItem('birthday_settings_v2');
@@ -102,7 +101,10 @@ export function App() {
             />
 
             {/* Interactive Birthday Cake & Candles */}
-            <InteractiveCake recipientName={settings.recipientName} />
+            <InteractiveCake
+              recipientName={settings.recipientName}
+              webhookUrl={settings.webhookUrl}
+            />
 
             {/* Photo Gallery Wall */}
             <PhotoGallery recipientName={settings.recipientName} />

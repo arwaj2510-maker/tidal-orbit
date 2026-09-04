@@ -1,4 +1,4 @@
-export type PhotoCategory = 'memories' | 'smiles' | 'cutiee' | 'unforgettable' | 'unforgettables';
+﻿export type PhotoCategory = 'memories' | 'smiles' | 'cutiee' | 'unforgettable' | 'unforgettables';
 
 export interface PhotoItem {
   id: string;
@@ -29,17 +29,24 @@ export interface Balloon {
   id: number;
   color: string;
   message: string;
-  x: number; // horizontal percentage
+  x: number;
   speed: number;
   popped: boolean;
+}
+
+export interface SecretWish {
+  id: string;
+  text: string;
+  date: string;
 }
 
 export interface BirthdaySettings {
   recipientName: string;
   nickname: string;
   passcode: string;
-  birthDate: string; // YYYY-MM-DD
+  birthDate: string;
   customAudioUrl?: string;
   secretMessage: string;
+  webhookUrl?: string;
   isUnlocked: boolean;
 }

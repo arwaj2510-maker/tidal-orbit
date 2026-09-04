@@ -1,27 +1,27 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Flame, Sparkles, Wand2, Heart, RotateCcw, PartyPopper } from 'lucide-react';
+import { Sparkles, Wand2, RotateCcw, Heart, Flame } from 'lucide-react';
 import { triggerBirthdayConfetti, triggerHeartConfetti } from '../utils/confetti';
+import { SecretWish } from '../types';
 
 interface InteractiveCakeProps {
   recipientName: string;
+  webhookUrl?: string;
 }
 
-export const InteractiveCake: React.FC<InteractiveCakeProps> = ({ recipientName }) => {
+export const InteractiveCake: React.FC<InteractiveCakeProps> = ({ recipientName, webhookUrl }) => {
   const [candlesBlown, setCandlesBlown] = useState(false);
   const [wish, setWish] = useState('');
   const [showWishModal, setShowWishModal] = useState(false);
   const [wishSubmitted, setWishSubmitted] = useState(false);
 
   const handleBlowCandles = () => {
-    if (!candlesBlown) {
-      setCandlesBlown(true);
-      triggerBirthdayConfetti();
-      triggerHeartConfetti();
-      setTimeout(() => {
-        setShowWishModal(true);
-      }, 700);
-    }
+    setCandlesBlown(true);
+    triggerBirthdayConfetti();
+    triggerHeartConfetti();
+    setTimeout(() => {
+      setShowWishModal(true);
+    }, 1200);
   };
 
   const handleRelight = () => {
@@ -33,51 +33,80 @@ export const InteractiveCake: React.FC<InteractiveCakeProps> = ({ recipientName 
   const handleWishSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (wish.trim()) {
+      const cleanWish = wish.trim();
       setWishSubmitted(true);
-      triggerBirthdayConfetti();
+
+      const newWish: SecretWish = {
+        id: Date.now().toString(),
+        text: cleanWish,
+        date: new Date().toLocaleString('en-US', {
+          dateStyle: 'medium',
+          timeStyle: 'short',
+        }),
+      };
+
+      // 1. Save wish locally in browser LocalStorage
+      try {
+        const saved: SecretWish[] = JSON.parse(localStorage.getItem('birthday_secret_wishes') || '[]');
+        localStorage.setItem('birthday_secret_wishes', JSON.stringify([newWish, ...saved]));
+      } catch (err) {
+        console.error('Error saving secret wish:', err);
+      }
+
+      // 2. Send wish to Webhook if provided (e.g. Discord, Telegram, or Webhook service)
+      if (webhookUrl && webhookUrl.trim().length > 0) {
+        try {
+          fetch(webhookUrl.trim(), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              username: 'Birthday Wish Collector',
+              content: `🎂 **New Birthday Wish from ${recipientName}!**\n> "${cleanWish}"\n\n🕒 *Submitted: ${newWish.date}*`,
+            }),
+          }).catch(() => {});
+        } catch (err) {
+          console.error('Error triggering webhook:', err);
+        }
+      }
+
       setTimeout(() => {
         setShowWishModal(false);
-      }, 2000);
+      }, 2500);
     }
   };
 
   return (
-    <section id="cake-section" className="py-20 px-4 relative max-w-5xl mx-auto text-center font-sans">
-      {/* Section Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        className="mb-12"
-      >
+    <section id="cake-section" className="py-20 px-4 max-w-5xl mx-auto text-center font-sans">
+      {/* Header */}
+      <div className="mb-10">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-pill border border-rose-300/30 text-rose-300 text-xs font-bold uppercase tracking-widest mb-3">
-          <Sparkles className="w-4 h-4 text-blush-gold" />
-          <span>Interactive Birthday Cake</span>
+          <Flame className="w-4 h-4 text-orange-400 animate-pulse" />
+          <span>Interactive Celebration</span>
         </div>
         <h2 className="font-serif text-4xl sm:text-5xl font-extrabold text-gradient-rose">
-          Blow Out The Birthday Candles 🎂
+          Make A Birthday Wish! 🎂
         </h2>
         <p className="text-rose-200/80 text-sm sm:text-base max-w-xl mx-auto mt-2">
           Click the candles or tap the button below to blow out the flames, make a secret wish, and celebrate! ✨
         </p>
-      </motion.div>
+      </div>
 
-      {/* Cake Container */}
-      <div className="relative flex flex-col items-center justify-center min-h-[380px] my-6">
-        {/* Glow backdrop */}
-        <div className="absolute w-80 h-80 bg-rose-500/20 rounded-full blur-3xl pointer-events-none" />
+      {/* Interactive Birthday Cake Container */}
+      <div className="relative max-w-md mx-auto p-8 rounded-3xl glass-card-glow border border-rose-300/30 shadow-2xl flex flex-col items-center justify-center min-h-[380px] overflow-hidden">
+        {/* Ambient Glow behind cake */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-rose-500/20 rounded-full blur-3xl pointer-events-none" />
 
-        {/* CSS Multi-tier Birthday Cake */}
-        <div className="relative z-10 flex flex-col items-center cursor-pointer group" onClick={handleBlowCandles}>
+        {/* 3-Tier Birthday Cake Visual */}
+        <div className="relative z-10 flex flex-col items-center cursor-pointer" onClick={!candlesBlown ? handleBlowCandles : undefined}>
           {/* Candles Row */}
-          <div className="flex items-end justify-center gap-6 mb-1">
-            {[1, 2, 3, 4, 5].map((candleIndex) => (
-              <div key={candleIndex} className="relative flex flex-col items-center">
-                {/* Flame */}
+          <div className="flex gap-4 mb-2 z-20">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="relative flex flex-col items-center">
+                {/* Flame with glowing animation */}
                 <AnimatePresence>
                   {!candlesBlown && (
                     <motion.div
-                      initial={{ scale: 0, opacity: 0 }}
+                      initial={{ scale: 0.8 }}
                       animate={{ scale: 1, opacity: 1 }}
                       exit={{ scale: 0, opacity: 0, y: -10 }}
                       className="relative w-5 h-8 mb-0.5 animate-flame"
@@ -152,7 +181,7 @@ export const InteractiveCake: React.FC<InteractiveCakeProps> = ({ recipientName 
             className="flex items-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-r from-rose-500 to-rose-400 hover:from-rose-400 hover:to-rose-300 text-white font-bold text-base shadow-xl shadow-rose-500/30 hover:scale-105 active:scale-95 transition-all"
           >
             <Wand2 className="w-5 h-5 text-yellow-300" />
-            <span>Blow Out Candles 🌬️</span>
+            <span>Blow Out Candles 🎂💖</span>
           </button>
         ) : (
           <div className="flex items-center gap-3">
@@ -219,7 +248,7 @@ export const InteractiveCake: React.FC<InteractiveCakeProps> = ({ recipientName 
                       disabled={!wish.trim()}
                       className="px-6 py-2.5 rounded-full bg-gradient-to-r from-rose-500 to-rose-400 hover:from-rose-400 hover:to-rose-300 disabled:opacity-40 text-white font-bold text-sm shadow-md"
                     >
-                      Lock In Wish ✨
+                      Lock In Wish 🔒
                     </button>
                   </div>
                 </form>
