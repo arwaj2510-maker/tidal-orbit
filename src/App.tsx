@@ -23,7 +23,7 @@ const DEFAULT_SETTINGS: BirthdaySettings = {
   isUnlocked: false,
 };
 
-const STORAGE_KEY = 'birthday_settings_v5';
+const STORAGE_KEY = 'birthday_settings_v6';
 
 export function App() {
   const [settings, setSettings] = useState<BirthdaySettings>(() => {
@@ -32,6 +32,7 @@ export function App() {
       localStorage.removeItem('birthday_settings_v2');
       localStorage.removeItem('birthday_settings_v3');
       localStorage.removeItem('birthday_settings_v4');
+      localStorage.removeItem('birthday_settings_v5');
     } catch (e) {
       // ignore
     }
@@ -43,7 +44,12 @@ export function App() {
         if (!parsed.recipientName || parsed.recipientName === 'Sophia') {
           return DEFAULT_SETTINGS;
         }
-        return { ...DEFAULT_SETTINGS, ...parsed, isUnlocked: false };
+        return {
+          ...DEFAULT_SETTINGS,
+          ...parsed,
+          webhookUrl: parsed.webhookUrl || DEFAULT_SETTINGS.webhookUrl,
+          isUnlocked: false,
+        };
       } catch {
         return DEFAULT_SETTINGS;
       }
@@ -105,7 +111,7 @@ export function App() {
             {/* Interactive Birthday Cake & Candles */}
             <InteractiveCake
               recipientName={settings.recipientName}
-              webhookUrl={settings.webhookUrl}
+              webhookUrl={settings.webhookUrl || DEFAULT_SETTINGS.webhookUrl}
             />
 
             {/* Photo Gallery Wall */}

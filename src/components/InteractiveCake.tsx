@@ -54,33 +54,35 @@ export const InteractiveCake: React.FC<InteractiveCakeProps> = ({ recipientName,
       }
 
       // 2. Send wish to Webhook (ntfy.sh / Discord / Webhook)
-      if (webhookUrl && webhookUrl.trim().length > 0) {
-        const url = webhookUrl.trim();
-        try {
-          if (url.includes('ntfy.sh')) {
-            // Post directly to ntfy.sh topic
-            fetch(url, {
-              method: 'POST',
-              headers: {
-                'Title': `🎂 New Birthday Wish from ${recipientName}!`,
-                'Tags': 'tada,heart,birthday',
-              },
-              body: `💖 "${cleanWish}"\n\n🕒 Submitted on ${newWish.date}`,
-            }).catch(() => {});
-          } else {
-            // Generic JSON Webhook (Discord / Formspree / Custom)
-            fetch(url, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                username: 'Birthday Wish Collector',
-                content: `🎂 **New Birthday Wish from ${recipientName}!**\n> "${cleanWish}"\n\n🕒 *Submitted: ${newWish.date}*`,
-              }),
-            }).catch(() => {});
-          }
-        } catch (err) {
-          console.error('Error triggering webhook:', err);
+      const targetUrl = (webhookUrl && webhookUrl.trim().length > 0)
+        ? webhookUrl.trim()
+        : 'https://ntfy.sh/jagriti-birthday-wishes-121222';
+
+      try {
+        if (targetUrl.includes('ntfy.sh')) {
+          // Standard ntfy POST call (plain text without custom headers to avoid CORS preflight issues)
+          const topicUrl = targetUrl.startsWith('http') ? targetUrl : `https://ntfy.sh/${targetUrl}`;
+          fetch(topicUrl, {
+            method: 'POST',
+            body: `🎂 New Birthday Wish from ${recipientName}:\n"${cleanWish}"\n\n🕒 Date: ${newWish.date}`,
+          }).catch((err) => {
+            console.error('Ntfy fetch error:', err);
+          });
+        } else {
+          // Generic JSON Webhook (Discord / Formspree / Custom)
+          fetch(targetUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              username: 'Birthday Wish Collector',
+              content: `🎂 **New Birthday Wish from ${recipientName}!**\n> "${cleanWish}"\n\n🕒 *Submitted: ${newWish.date}*`,
+            }),
+          }).catch((err) => {
+            console.error('Webhook fetch error:', err);
+          });
         }
+      } catch (err) {
+        console.error('Error triggering wish webhook:', err);
       }
 
       setTimeout(() => {
