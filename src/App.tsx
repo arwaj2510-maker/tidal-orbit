@@ -17,7 +17,7 @@ const DEFAULT_SETTINGS: BirthdaySettings = {
   recipientName: 'Jagriti',
   nickname: 'Princess',
   passcode: '121222',
-  birthDate: '2026-12-12',
+  birthDate: '2026-09-10',
   secretMessage: 'Happy Birthday to the most breathtakingly wonderful person in the world! You light up my universe every single day. Wishing you a year full of dreams coming true, endless giggles, and magic!',
   isUnlocked: false,
 };
