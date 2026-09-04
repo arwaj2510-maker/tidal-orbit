@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { PasswordScreen } from './components/PasswordScreen';
 import { AudioPlayer } from './components/AudioPlayer';
 import { FloatingElements } from './components/FloatingElements';
@@ -22,12 +22,27 @@ const DEFAULT_SETTINGS: BirthdaySettings = {
   isUnlocked: false,
 };
 
+const STORAGE_KEY = 'birthday_settings_v4';
+
 export function App() {
   const [settings, setSettings] = useState<BirthdaySettings>(() => {
-    const saved = localStorage.getItem('birthday_settings');
+    // Clear legacy storage keys that had old default name "Sophia"
+    try {
+      localStorage.removeItem('birthday_settings');
+      localStorage.removeItem('birthday_settings_v2');
+      localStorage.removeItem('birthday_settings_v3');
+    } catch (e) {
+      // ignore
+    }
+
+    const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       try {
-        return { ...DEFAULT_SETTINGS, ...JSON.parse(saved), isUnlocked: false };
+        const parsed = JSON.parse(saved);
+        if (!parsed.recipientName || parsed.recipientName === 'Sophia') {
+          return DEFAULT_SETTINGS;
+        }
+        return { ...DEFAULT_SETTINGS, ...parsed, isUnlocked: false };
       } catch {
         return DEFAULT_SETTINGS;
       }
@@ -40,7 +55,7 @@ export function App() {
 
   useEffect(() => {
     localStorage.setItem(
-      'birthday_settings',
+      STORAGE_KEY,
       JSON.stringify({ ...settings, isUnlocked: false })
     );
   }, [settings]);
