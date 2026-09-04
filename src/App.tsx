@@ -19,10 +19,11 @@ const DEFAULT_SETTINGS: BirthdaySettings = {
   passcode: '121222',
   birthDate: '2026-09-10',
   secretMessage: 'Happy Birthday to the most breathtakingly wonderful person in the world! You light up my universe every single day. Wishing you a year full of dreams coming true, endless giggles, and magic!',
+  webhookUrl: 'https://ntfy.sh/jagriti-birthday-wishes-121222',
   isUnlocked: false,
 };
 
-const STORAGE_KEY = 'birthday_settings_v4';
+const STORAGE_KEY = 'birthday_settings_v5';
 
 export function App() {
   const [settings, setSettings] = useState<BirthdaySettings>(() => {
@@ -30,6 +31,7 @@ export function App() {
       localStorage.removeItem('birthday_settings');
       localStorage.removeItem('birthday_settings_v2');
       localStorage.removeItem('birthday_settings_v3');
+      localStorage.removeItem('birthday_settings_v4');
     } catch (e) {
       // ignore
     }

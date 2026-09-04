@@ -53,17 +53,31 @@ export const InteractiveCake: React.FC<InteractiveCakeProps> = ({ recipientName,
         console.error('Error saving secret wish:', err);
       }
 
-      // 2. Send wish to Webhook if provided (e.g. Discord, Telegram, or Webhook service)
+      // 2. Send wish to Webhook (ntfy.sh / Discord / Webhook)
       if (webhookUrl && webhookUrl.trim().length > 0) {
+        const url = webhookUrl.trim();
         try {
-          fetch(webhookUrl.trim(), {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              username: 'Birthday Wish Collector',
-              content: `🎂 **New Birthday Wish from ${recipientName}!**\n> "${cleanWish}"\n\n🕒 *Submitted: ${newWish.date}*`,
-            }),
-          }).catch(() => {});
+          if (url.includes('ntfy.sh')) {
+            // Post directly to ntfy.sh topic
+            fetch(url, {
+              method: 'POST',
+              headers: {
+                'Title': `🎂 New Birthday Wish from ${recipientName}!`,
+                'Tags': 'tada,heart,birthday',
+              },
+              body: `💖 "${cleanWish}"\n\n🕒 Submitted on ${newWish.date}`,
+            }).catch(() => {});
+          } else {
+            // Generic JSON Webhook (Discord / Formspree / Custom)
+            fetch(url, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                username: 'Birthday Wish Collector',
+                content: `🎂 **New Birthday Wish from ${recipientName}!**\n> "${cleanWish}"\n\n🕒 *Submitted: ${newWish.date}*`,
+              }),
+            }).catch(() => {});
+          }
         } catch (err) {
           console.error('Error triggering webhook:', err);
         }
