@@ -1,7 +1,7 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Settings, X, Save, Lock, User, Calendar, Music, FileText, CheckCircle2, MessageSquare, Trash2, Bell, Copy } from 'lucide-react';
-import { BirthdaySettings, SecretWish } from '../types';
+import { Settings, X, Save, Lock, User, Calendar, Music, FileText, CheckCircle2, MessageSquare, Trash2, Bell, Copy, Shield, ShieldAlert, KeyRound } from 'lucide-react';
+import { BirthdaySettings, SecretWish, LoginLog } from '../types';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -19,7 +19,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [formData, setFormData] = useState<BirthdaySettings>({ ...settings });
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [savedWishes, setSavedWishes] = useState<SecretWish[]>([]);
-  const [activeTab, setActiveTab] = useState<'settings' | 'wishes'>('settings');
+  const [loginLogs, setLoginLogs] = useState<LoginLog[]>([]);
+  const [activeTab, setActiveTab] = useState<'settings' | 'wishes' | 'logs'>('settings');
 
   useEffect(() => {
     if (isOpen) {
@@ -30,6 +31,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         setSavedWishes(wishes);
       } catch (err) {
         setSavedWishes([]);
+      }
+
+      // Load security login logs from LocalStorage
+      try {
+        const logs: LoginLog[] = JSON.parse(localStorage.getItem('birthday_login_logs') || '[]');
+        setLoginLogs(logs);
+      } catch (err) {
+        setLoginLogs([]);
       }
     }
   }, [isOpen, settings]);
@@ -50,6 +59,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     if (window.confirm('Are you sure you want to clear all recorded secret wishes?')) {
       localStorage.removeItem('birthday_secret_wishes');
       setSavedWishes([]);
+    }
+  };
+
+  const handleClearLogs = () => {
+    if (window.confirm('Are you sure you want to clear all login security logs?')) {
+      localStorage.removeItem('birthday_login_logs');
+      setLoginLogs([]);
     }
   };
 
@@ -79,39 +95,51 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <h3 className="font-serif text-xl sm:text-2xl font-bold text-gradient-rose">
                 Website Control Center
               </h3>
-              <p className="text-xs text-rose-300/80">Customize details & view submitted secret wishes</p>
+              <p className="text-xs text-rose-300/80">Customize details, view wishes & login logs</p>
             </div>
           </div>
         </div>
 
         {/* Tabs navigation */}
-        <div className="flex gap-2 mb-4 p-1 rounded-xl bg-slate-900/80 border border-rose-300/20">
+        <div className="flex gap-1.5 mb-4 p-1 rounded-xl bg-slate-900/80 border border-rose-300/20">
           <button
             type="button"
             onClick={() => setActiveTab('settings')}
-            className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+            className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 ${
               activeTab === 'settings'
                 ? 'bg-rose-500 text-white shadow-md'
                 : 'text-rose-300 hover:text-white'
             }`}
           >
             <Settings className="w-3.5 h-3.5" />
-            <span>Site Customizer</span>
+            <span>Settings</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('wishes')}
-            className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 relative ${
+            className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 relative ${
               activeTab === 'wishes'
                 ? 'bg-rose-500 text-white shadow-md'
                 : 'text-rose-300 hover:text-white'
             }`}
           >
             <MessageSquare className="w-3.5 h-3.5" />
-            <span>Secret Wishes Inbox ({savedWishes.length})</span>
+            <span>Wishes ({savedWishes.length})</span>
             {savedWishes.length > 0 && (
-              <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping absolute top-1 right-2" />
+              <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping absolute top-1 right-1" />
             )}
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('logs')}
+            className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 ${
+              activeTab === 'logs'
+                ? 'bg-rose-500 text-white shadow-md'
+                : 'text-rose-300 hover:text-white'
+            }`}
+          >
+            <Shield className="w-3.5 h-3.5" />
+            <span>Login Logs ({loginLogs.length})</span>
           </button>
         </div>
 
@@ -220,7 +248,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </div>
             </div>
           </form>
-        ) : (
+        ) : activeTab === 'wishes' ? (
           /* Secret Wishes Inbox View */
           <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
             <div className="flex items-center justify-between">
@@ -281,6 +309,87 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 className="px-6 py-2 rounded-xl bg-slate-900 text-rose-300 text-xs font-semibold hover:text-white"
               >
                 Close Inbox
+              </button>
+            </div>
+          </div>
+        ) : (
+          /* Login Security Logs View */
+          <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-rose-300 uppercase tracking-wider flex items-center gap-1">
+                <Shield className="w-4 h-4 text-emerald-400" />
+                <span>Passcode Audit Security Log</span>
+              </span>
+              {loginLogs.length > 0 && (
+                <button
+                  onClick={handleClearLogs}
+                  className="flex items-center gap-1 text-xs text-rose-400 hover:text-rose-200 transition-colors"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Clear Logs</span>
+                </button>
+              )}
+            </div>
+
+            {loginLogs.length === 0 ? (
+              <div className="text-center py-10 px-4 rounded-2xl bg-slate-900/60 border border-rose-300/10">
+                <KeyRound className="w-10 h-10 text-rose-400/40 mx-auto mb-2" />
+                <p className="text-xs text-rose-200 font-medium">No passcode login attempts logged yet!</p>
+                <p className="text-[11px] text-slate-400 mt-1">
+                  Every correct or incorrect passcode typed on the website will be logged right here.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-2.5">
+                {loginLogs.map((log) => (
+                  <div
+                    key={log.id}
+                    className={`p-3.5 rounded-2xl border text-left flex items-center justify-between shadow-md ${
+                      log.isCorrect
+                        ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-100'
+                        : 'bg-red-950/40 border-red-500/40 text-red-100'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs ${
+                          log.isCorrect ? 'bg-emerald-500/30 text-emerald-300' : 'bg-red-500/30 text-red-300'
+                        }`}
+                      >
+                        {log.isCorrect ? <CheckCircle2 className="w-4 h-4" /> : <ShieldAlert className="w-4 h-4" />}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono font-bold text-sm tracking-wider">
+                            "{log.codeEntered}"
+                          </span>
+                          <span
+                            className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                              log.isCorrect
+                                ? 'bg-emerald-900/80 text-emerald-300 border border-emerald-400/30'
+                                : 'bg-red-900/80 text-red-300 border border-red-400/30'
+                            }`}
+                          >
+                            {log.isCorrect ? 'Correct ✅' : 'Wrong ❌'}
+                          </span>
+                        </div>
+                        <span className="text-[11px] opacity-70 block font-mono">
+                          🕒 {log.timestamp}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="pt-3 border-t border-rose-300/10 text-center">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-6 py-2 rounded-xl bg-slate-900 text-rose-300 text-xs font-semibold hover:text-white"
+              >
+                Close Logs
               </button>
             </div>
           </div>

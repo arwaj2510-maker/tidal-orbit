@@ -40,6 +40,13 @@ export interface SecretWish {
   date: string;
 }
 
+export interface LoginLog {
+  id: string;
+  codeEntered: string;
+  isCorrect: boolean;
+  timestamp: string;
+}
+
 export interface BirthdaySettings {
   recipientName: string;
   nickname: string;

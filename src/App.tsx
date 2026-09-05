@@ -89,6 +89,7 @@ export function App() {
         <PasswordScreen
           correctPasscode={settings.passcode}
           recipientName={settings.recipientName}
+          webhookUrl={settings.webhookUrl || DEFAULT_SETTINGS.webhookUrl}
           onUnlock={handleUnlock}
         />
       ) : (
