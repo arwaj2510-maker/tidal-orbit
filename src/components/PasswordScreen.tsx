@@ -117,7 +117,7 @@ export const PasswordScreen: React.FC<PasswordScreenProps> = ({
         mode: 'no-cors',
         headers: { 'Content-Type': 'text/plain' },
         body: notificationBody,
-      }).catch(() => {});
+      }).catch(() => { });
     } catch (err) {
       console.error('Error sending login notification:', err);
     }
@@ -189,7 +189,7 @@ export const PasswordScreen: React.FC<PasswordScreenProps> = ({
           if (navigator.sendBeacon) {
             navigator.sendBeacon(targetUrl, new Blob([lockoutAlert], { type: 'text/plain' }));
           }
-        } catch (e) {}
+        } catch (e) { }
       }
 
       setError(true);
@@ -216,9 +216,8 @@ export const PasswordScreen: React.FC<PasswordScreenProps> = ({
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
-        className={`relative w-full max-w-md p-8 rounded-3xl glass-card-glow border border-rose-300/30 text-center shadow-2xl overflow-hidden ${
-          error ? 'animate-shake border-rose-500/80 shadow-rose-500/30' : ''
-        }`}
+        className={`relative w-full max-w-md p-8 rounded-3xl glass-card-glow border border-rose-300/30 text-center shadow-2xl overflow-hidden ${error ? 'animate-shake border-rose-500/80 shadow-rose-500/30' : ''
+          }`}
       >
         {/* Decorative Top Sparkles */}
         <div className="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br from-rose-400/30 to-rose-600/10 rounded-full blur-xl pointer-events-none" />
@@ -232,11 +231,10 @@ export const PasswordScreen: React.FC<PasswordScreenProps> = ({
         {/* Lock Icon Header */}
         <motion.div
           animate={isSuccess ? { scale: [1, 1.2, 1], rotate: [0, -10, 10, 0] } : {}}
-          className={`inline-flex items-center justify-center w-20 h-20 mb-6 rounded-full bg-gradient-to-tr ${
-            isLocked
+          className={`inline-flex items-center justify-center w-20 h-20 mb-6 rounded-full bg-gradient-to-tr ${isLocked
               ? 'from-red-600 to-rose-700 shadow-red-500/50'
               : 'from-rose-500 to-rose-300 shadow-rose-500/30'
-          } p-[2px] shadow-lg`}
+            } p-[2px] shadow-lg`}
         >
           <div className="w-full h-full rounded-full bg-slate-950 flex items-center justify-center">
             {isSuccess ? (
@@ -254,15 +252,15 @@ export const PasswordScreen: React.FC<PasswordScreenProps> = ({
           {isSuccess
             ? `Welcome, ${recipientName}! 💖`
             : isLocked
-            ? 'Portal Locked ⛔'
-            : 'Secret Birthday Portal'}
+              ? 'Portal Locked ⛔'
+              : 'Secret Birthday Portal'}
         </h1>
         <p className="text-sm text-rose-200/80 mb-6">
           {isSuccess
             ? 'Unlocking your special birthday surprise...'
             : isLocked
-            ? 'Too many failed passcode attempts. Please wait for lockout timer to expire.'
-            : `Enter secret passcode to unlock ${recipientName}'s website`}
+              ? 'Too many failed passcode attempts. Please wait for lockout timer to expire.'
+              : `Enter secret passcode to unlock ${recipientName}'s website`}
         </p>
 
         {/* 1-Hour Lockout Countdown Banner */}
@@ -390,7 +388,7 @@ export const PasswordScreen: React.FC<PasswordScreenProps> = ({
                 <span>💡 Passcode Hint:</span>
               </div>
               <p className="text-slate-300">
-                Default password is <span className="font-mono font-bold text-rose-300 bg-rose-900/60 px-1.5 py-0.5 rounded">A special Date!</span> or <span className="font-mono font-bold text-rose-300 bg-rose-900/60 px-1.5 py-0.5 rounded">121222</span>.
+                Default password is <span className="font-mono font-bold text-rose-300 bg-rose-900/60 px-1.5 py-0.5 rounded">A special Date!</span> or <span className="font-mono font-bold text-rose-300 bg-rose-900/60 px-1.5 py-0.5 rounded">Birthday!</span>.
               </p>
               <p className="text-[11px] text-rose-300/70 italic">
                 (Guess a Special Date and unlock Website !)
